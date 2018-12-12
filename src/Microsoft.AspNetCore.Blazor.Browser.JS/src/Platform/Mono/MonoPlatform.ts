@@ -6,6 +6,10 @@ const assemblyHandleCache: { [assemblyName: string]: number } = {};
 const typeHandleCache: { [fullyQualifiedTypeName: string]: number } = {};
 const methodHandleCache: { [fullyQualifiedMethodName: string]: MethodHandle } = {};
 
+declare namespace FS {
+  function createDataFile(parent: string, name: string, data: Uint8Array, canRead: boolean, canWrite: boolean, canOwn: boolean);
+}
+
 let assembly_load: (assemblyName: string) => number;
 let find_class: (assemblyHandle: number, namespace: string, className: string) => number;
 let find_method: (typeHandle: number, methodName: string, unknownArg: number) => MethodHandle;
@@ -227,6 +231,7 @@ function createEmscriptenModuleInstance(loadAssemblyUrls: string[], onReady: () 
           heapMemory.set(data);
           mono_wasm_add_assembly(filename, heapAddress, data.length);
           MONO.loaded_files.push(toAbsoluteUrl(url));
+          FS.createDataFile("/tmp", filename, heapMemory, true, true, true);
           removeRunDependency(runDependencyId);
         },
         errorInfo => {
